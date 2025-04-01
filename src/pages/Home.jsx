@@ -12,7 +12,7 @@ function Home() {
       setMovies(data);
     }
     getMovies();
-  }, []);
+  }, [searchQuery]); // Added searchQuery as a dependency
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
@@ -21,6 +21,8 @@ function Home() {
         type="text"
         placeholder="Search movies..."
         className="p-2 w-full max-w-md border border-gray-600 rounded-md bg-gray-800 text-white"
+        value={searchQuery} // Controlled input
+        onChange={(e) => setSearchQuery(e.target.value)} // Updates state
       />
       <div>
         {movies.map((movie) => (
