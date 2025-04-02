@@ -10,6 +10,7 @@ function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchActive, setSearchActive] = useState(false);
 
   const images = [
     `${import.meta.env.BASE_URL}images/image1.jpg`,
@@ -30,8 +31,11 @@ function Home() {
     if (searchQuery.trim() === "") {
       setMovies([]);
       setHasSearched(false);
+      setSearchActive(false);
       return;
     }
+
+    setSearchActive(true);
 
     const searchDelay = setTimeout(() => {
       async function fetchMoviesData() {
@@ -65,12 +69,12 @@ function Home() {
 
       {/* Main Content */}
       <div className="content">
-        <h1>Find Your Favorite Movies</h1>
+        <h1 className={searchActive ? "hidden" : ""}>Find Your Favorite Movies</h1>
         
         <input
           type="text"
           placeholder="Search movies..."
-          className="search-input"
+          className={`search-input ${searchActive ? "search-active" : ""}`}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
