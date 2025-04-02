@@ -1,0 +1,77 @@
+/* ABOUT CONTAINER
+   Matches the overall structure of your Home page. */
+   .about-container {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* NAVBAR 
+     You already have a navbar with a high z-index. 
+     Just ensure it's consistent with the rest of your app. */
+  
+  /* BACKGROUND WRAPPER
+     Same approach as Home.jsx */
+  .background-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -2;
+  }
+  
+  .background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 2s ease-in-out;
+  }
+  
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.3) 100%
+    );
+    z-index: 1;
+  }
+  
+  /* ABOUT CONTENT 
+     A semi-transparent background box, similar to .content in Home.css */
+  .about-content {
+    position: relative;
+    margin-top: 100px; /* So it appears below the fixed navbar */
+    width: 90%;
+    max-width: 900px;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    color: #fff;
+  }
+  
+  /* HEADINGS, PARAGRAPHS */
+  .about-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .about-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  

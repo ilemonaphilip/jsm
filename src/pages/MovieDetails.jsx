@@ -1,11 +1,25 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { fetchMovieDetails } from "../services/api";
+import "./MovieDetails.css";
 
 function MovieDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
+  
+  // State for user rating and review
+  const [userRating, setUserRating] = useState(0);
+  const [userReview, setUserReview] = useState("");
+
+  const handleSubmitReview = () => {
+    console.log("User Rating:", userRating);
+    console.log("User Review:", userReview);
+    alert("Thank you for your review!");
+    // Reset the review form
+    setUserRating(0);
+    setUserReview("");
+  };
 
   useEffect(() => {
     async function loadMovieDetails() {
@@ -14,55 +28,84 @@ function MovieDetails() {
         setMovie(data);
       } catch (error) {
         console.error("Error loading movie details:", error);
-        navigate("/", { replace: true }); // Redirect to home if error occurs
+        navigate("/", { replace: true });
       }
     }
     loadMovieDetails();
   }, [id, navigate]);
 
-  if (!movie) return <div className="p-6">Loading movie details...</div>;
+  if (!movie)
+    return (
+      <div className="container">
+        <p className="loading-text">Loading movie details...</p>
+      </div>
+    );
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Navigation Header */}
-      <div className="flex justify-between items-center mb-8 p-4 bg-gray-800 rounded-lg">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
-          Back to Results
-        </button>
-        
-        <Link
-          to="/"
-          className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-          </svg>
-          Return Home
-        </Link>
+    <div className="container">
+      {/* Navbar */}
+      <div className="navbar">
+        <h1>Movie App</h1>
+        <div className="nav-links">
+          <button className="nav-button" onClick={() => navigate(-1)}>Back</button>
+          <Link className="nav-link" to="/">Home</Link>
+        </div>
       </div>
 
-      {/* Movie Content */}
-      <div className="bg-gray-800 p-6 rounded-lg">
-        <h1 className="text-3xl font-bold mb-4">{movie.Title}</h1>
-        <div className="flex flex-col md:flex-row gap-8">
-          <img 
-            src={movie.Poster} 
-            alt={movie.Title} 
-            className="w-full md:w-64 h-auto rounded-lg shadow-lg"
+      {/* Movie Details Section */}
+      <div className="movie-details">
+        <h1 className="movie-title">{movie.Title}</h1>
+        <div className="movie-info">
+          <img
+            src={movie.Poster}
+            alt={movie.Title}
+            className="movie-poster"
           />
-          <div className="flex-1">
-            <p className="mb-2"><span className="font-semibold">Year:</span> {movie.Year}</p>
-            <p className="mb-2"><span className="font-semibold">Genre:</span> {movie.Genre}</p>
-            <p className="mb-2"><span className="font-semibold">Director:</span> {movie.Director}</p>
-            <p className="mb-2"><span className="font-semibold">Plot:</span></p>
-            <p className="text-gray-300">{movie.Plot}</p>
+          <div className="movie-text">
+            <p>
+              <span>Year:</span> {movie.Year}
+            </p>
+            <p>
+              <span>Genre:</span> {movie.Genre}
+            </p>
+            <p>
+              <span>Director:</span> {movie.Director}
+            </p>
+            <p>
+              <span>Plot:</span> {movie.Plot}
+            </p>
           </div>
+        </div>
+
+        {/* Rating & Review Section */}
+        <div className="rating-review">
+          <h2>Rate and Review</h2>
+          <div className="review-item">
+            <label>Rating:</label>
+            <select
+              value={userRating}
+              onChange={(e) => setUserRating(e.target.value)}
+            >
+              <option value="0">Select rating</option>
+              <option value="1">1 Star</option>
+              <option value="2">2 Stars</option>
+              <option value="3">3 Stars</option>
+              <option value="4">4 Stars</option>
+              <option value="5">5 Stars</option>
+            </select>
+          </div>
+          <div className="review-item">
+            <label>Review:</label>
+            <textarea
+              value={userReview}
+              onChange={(e) => setUserReview(e.target.value)}
+              rows="4"
+              placeholder="Write your review here..."
+            ></textarea>
+          </div>
+          <button className="submit-button" onClick={handleSubmitReview}>
+            Submit Review
+          </button>
         </div>
       </div>
     </div>
