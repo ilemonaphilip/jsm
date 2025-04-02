@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { fetchMovieDetails } from "../services/api";
 import "./MovieDetails.css";
+import { useLocation } from "react-router-dom";
 
 function MovieDetails() {
+  const location = useLocation();
+const previousSearch = location.state?.searchQuery || "";
   const { id } = useParams();
   const navigate = useNavigate();
   const [movie, setMovie] = useState(null);
@@ -47,7 +50,8 @@ function MovieDetails() {
       <div className="navbar">
         <h1>Movie App</h1>
         <div className="nav-links">
-          <button className="nav-button" onClick={() => navigate(-1)}>Back</button>
+          <button className="nav-button" onClick={() => navigate("/", { state: { searchQuery: previousSearch } })}
+          >Back</button>
           <Link className="nav-link" to="/">Home</Link>
         </div>
       </div>
