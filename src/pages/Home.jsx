@@ -1,3 +1,5 @@
+// src/pages/Home.jsx
+import React from "react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { fetchMovies } from "../services/api";
@@ -12,25 +14,18 @@ function Home() {
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Background slideshow states
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [prevImageIndex, setPrevImageIndex] = useState(null);
+  // Use a single background image from your public/images folder.
+  // Make sure this file exists at public/images/image1.jpg.
+  const backgroundImage = "/images/image1.jpg";
 
-  // Use relative paths (ensure these images exist in your public/images folder)
-  const images = [
-    "/images/image1.jpg",
-    "/images/image2.jpg",
-    "/images/image3.jpg",
-  ];
-
-  // If coming back from MovieDetails, restore the search query
+  // Restore search query if coming back from MovieDetails
   useEffect(() => {
     if (location.state?.searchQuery) {
       setSearchQuery(location.state.searchQuery);
     }
   }, [location.state]);
 
-  // When searchQuery changes, fetch movies (after a slight delay)
+  // Fetch movies when searchQuery changes
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setMovies([]);
@@ -54,42 +49,22 @@ function Home() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Background slideshow effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => {
-        setPrevImageIndex(prevIndex);
-        const newIndex = (prevIndex + 1) % images.length;
-        // Clear previous image after transition (2s)
-        setTimeout(() => setPrevImageIndex(null), 2000);
-        return newIndex;
-      });
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [images.length]);
-
   return (
     <div className="home-container">
       <Navbar />
       {/* Background */}
       <div className="background-wrapper">
-        {prevImageIndex !== null && (
-          <div
-            className="background-image"
-            style={{
-              backgroundImage: `url(${images[prevImageIndex]})`,
-              opacity: 0,
-            }}
-          />
-        )}
         <div
           className="background-image"
           style={{
-            backgroundImage: `url(${images[currentImageIndex]})`,
+            backgroundImage: `url(${backgroundImage})`,
             opacity: 1,
           }}
         />
+        {/* Uncomment overlay if you want a gradient overlay */}
+        {/*
         <div className="overlay"></div>
+        */}
       </div>
       <div className="content">
         <h1 className={searchActive ? "hidden" : ""}>

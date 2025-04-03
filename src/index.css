@@ -1,4 +1,4 @@
-/* Global Styles */
+/* General style */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -24,7 +24,7 @@ html, body, #root {
   flex-direction: column;
 }
 
-/* Allow scrolling */
+/* To allow scrolling */
 html, body {
   overflow: auto;
 }
@@ -46,7 +46,7 @@ body {
   min-height: 100vh;
 }
 
-/* Center content properly */
+/* To make centre properly */
 .home-container {
   display: flex;
   flex-direction: column;
