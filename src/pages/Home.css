@@ -56,7 +56,7 @@ nav a:hover {
   color: #aaa;
 }
 
-/* Background Wrapper & Images */
+/* Background Wrapper & Image */
 .background-wrapper {
   position: fixed;
   top: 0;
@@ -70,26 +70,26 @@ nav a:hover {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;  /* full viewport width */
+  height: 100vh; /* full viewport height */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   transition: opacity 2s ease-in-out;
+  border: 5px solid yellow;  /* for debugging */
 }
 
-/* Overlay (if you wish to add it back later) */
-/*
+
 .overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.2));
   z-index: 1;
 }
-*/
+
 
 /* Content Container */
 .content {
@@ -98,21 +98,22 @@ nav a:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center; /* Center content vertically */
   width: 90%;
   max-width: 900px;
   padding: 2rem;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.3);  /* Lighter background for transparency */
   border-radius: 10px;
-  margin-top: 100px; /* Ensure content stays below navbar */
+  margin: 100px auto 0 auto; /* Center horizontally, and 100px top margin */
 }
+
 
 /* Text Background for the Main Header */
 .content h1 {
-  background: rgba(0, 0, 0, 0.6);  /* Semi-transparent black */
+  background: rgba(0, 0, 0, 0.6);
   padding: 10px 20px;
   border-radius: 5px;
-  display: inline-block; /* Shrink-wrap around the text */
+  display: inline-block;
 }
 
 /* Hide header when search is active */
@@ -123,7 +124,7 @@ nav a:hover {
 /* Search Bar (centered by default) */
 .search-input {
   display: block;
-  margin: 0 auto 2rem;
+  margin: 20px auto 20px;
   width: 100%;
   max-width: 500px;
   padding: 15px 25px;
@@ -140,7 +141,7 @@ nav a:hover {
 /* When active, pin the search bar under the navbar */
 .search-input.search-active {
   position: fixed;
-  top: 80px; /* Adjust to place just below navbar */
+  top: 80px; /* Adjust as needed */
   left: 20px;
   width: 180px;
   height: 40px;
@@ -160,7 +161,7 @@ nav a:hover {
   padding: 1rem;
 }
 
-/* Fluid Movie Grid: Auto-fit as many 200px min columns as possible */
+/* Fluid Movie Grid */
 .movie-grid {
   display: grid;
   gap: 1rem;
@@ -176,7 +177,7 @@ nav a:hover {
   text-align: center;
 }
 
-/* Loading Spinner (Optional) */
+/* Loading Spinner */
 .loading-spinner {
   width: 50px;
   height: 50px;
@@ -184,7 +185,7 @@ nav a:hover {
   border-top: 4px solid #fff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin: 2rem auto;
+  margin: 20px auto;
 }
 
 @keyframes spin {

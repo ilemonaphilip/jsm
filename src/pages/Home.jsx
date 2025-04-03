@@ -1,6 +1,5 @@
 // src/pages/Home.jsx
-import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { fetchMovies } from "../services/api";
 import Navbar from "../components/Navbar";
@@ -14,18 +13,23 @@ function Home() {
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Use a single background image from your public/images folder.
-  // Make sure this file exists at public/images/image1.jpg.
-  const backgroundImage = "/images/image1.jpg";
+  // Use a single background image; useMemo to keep it stable across renders.
+  const backgroundImage = `${import.meta.env.BASE_URL}images/image1.jpg`;
 
-  // Restore search query if coming back from MovieDetails
+  // Preload the background image once on mount.
+  useEffect(() => {
+    const img = new Image();
+    img.src = backgroundImage;
+  }, [backgroundImage]);
+
+  // Restore search query if coming back from MovieDetails.
   useEffect(() => {
     if (location.state?.searchQuery) {
       setSearchQuery(location.state.searchQuery);
     }
   }, [location.state]);
 
-  // Fetch movies when searchQuery changes
+  // Fetch movies when searchQuery changes.
   useEffect(() => {
     if (searchQuery.trim() === "") {
       setMovies([]);
@@ -61,10 +65,9 @@ function Home() {
             opacity: 1,
           }}
         />
-        {/* Uncomment overlay if you want a gradient overlay */}
-        {/*
-        <div className="overlay"></div>
-        */}
+        
+          <div className="overlay"></div>
+        
       </div>
       <div className="content">
         <h1 className={searchActive ? "hidden" : ""}>

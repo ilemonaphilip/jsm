@@ -11,8 +11,7 @@ function About() {
         <div
           className="background-image"
           style={{ 
-            /* Use your desired image here. 
-               For consistency, you could import a local image or use a URL. */
+            /*to put a background image here later*/
             backgroundImage: `url("https://via.placeholder.com/1920x1080?text=About+Background")`, 
             opacity: 1
           }}

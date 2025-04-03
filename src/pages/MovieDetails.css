@@ -1,4 +1,6 @@
-/* Base styles for Movie Details page */
+/* MovieDetails.css */
+
+/* Base Styles */
 body {
     margin: 0;
     padding: 0;
@@ -7,8 +9,8 @@ body {
     color: #f5f5f5;
   }
   
-  /* Container for the entire page */
-  .container {
+  /* Container for the page */
+  .movie-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
@@ -52,8 +54,8 @@ body {
     cursor: pointer;
   }
   
-  .nav-link:hover,
-  .nav-button:hover {
+  .nav-button:hover,
+  .nav-link:hover {
     color: #bbb;
   }
   
@@ -61,7 +63,7 @@ body {
   .movie-details {
     background-color: #1e1e1e;
     padding: 20px;
-    margin-top: 80px; /* space for fixed navbar */
+    margin-top: 100px; /* Leave space for the fixed navbar */
     border-radius: 8px;
   }
   
@@ -70,7 +72,6 @@ body {
     margin-bottom: 10px;
   }
   
-  /* Layout for movie info */
   .movie-info {
     display: flex;
     flex-wrap: wrap;
@@ -79,7 +80,7 @@ body {
   }
   
   .movie-poster {
-    width: 250px;
+    width: 200px;
     max-width: 100%;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.5);
@@ -112,8 +113,10 @@ body {
     margin-bottom: 15px;
   }
   
-  .review-item {
-    margin-bottom: 15px;
+  .rating-review form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
   }
   
   .review-item label {
@@ -148,14 +151,51 @@ body {
     background-color: #337ab7;
   }
   
-  /* Loading text */
-  .loading-text {
+  /* Reviews List */
+  .reviews-list {
+    margin-top: 20px;
+  }
+  
+  .reviews-list h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .review {
+    background-color: #333;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+  }
+  
+  .review-rating {
+    font-weight: bold;
+  }
+  
+  .review-date {
+    color: #bbb;
+  }
+  
+  .review-text {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  
+  /* Loading State */
+  .movie-loading {
     text-align: center;
     font-size: 1.2rem;
     margin-top: 100px;
   }
   
-  /* Responsive adjustments */
+  /* Responsive Adjustments */
   @media (max-width: 768px) {
     .movie-info {
       flex-direction: column;
