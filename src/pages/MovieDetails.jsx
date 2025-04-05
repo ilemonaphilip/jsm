@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import { fetchMovieDetails } from "../services/api";
+import { fetchMovieDetails } from "../services/Api";
 import "./MovieDetails.css";
 
 function MovieDetails() {
