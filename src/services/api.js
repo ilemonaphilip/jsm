@@ -1,28 +1,69 @@
-const API_KEY = "b96d2433"; // Your OMDB API Key
-const BASE_URL = "https://www.omdbapi.com/";
+// src/services/api.js
+
+// ——————————————————————————————
+//  OMDB (your existing setup)
+// ——————————————————————————————
+const OMDB_API_KEY = "b96d2433";
+const OMDB_BASE = "https://www.omdbapi.com/";
 
 export async function fetchMovies(searchQuery) {
   try {
-    const response = await fetch(`${BASE_URL}?s=${searchQuery}&apikey=${API_KEY}`);
-    const data = await response.json();
-    if (data.Response === "True") {
-      return data.Search; // Returns an array of movies
-    } else {
-      return []; // Returns an empty array if no movies found
-    }
-  } catch (error) {
-    console.error("Error fetching movies:", error);
+    const res = await fetch(
+      `${OMDB_BASE}?s=${encodeURIComponent(searchQuery)}&apikey=${OMDB_API_KEY}`
+    );
+    const data = await res.json();
+    return data.Response === "True" ? data.Search : [];
+  } catch (e) {
+    console.error("OMDB fetchMovies error:", e);
     return [];
   }
 }
 
-export async function fetchMovieDetails(movieId) {
+export async function fetchMovieDetailsOMDB(imdbID) {
   try {
-    const response = await fetch(`${BASE_URL}?i=${movieId}&apikey=${API_KEY}`);
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching movie details:", error);
+    const res = await fetch(
+      `${OMDB_BASE}?i=${encodeURIComponent(imdbID)}&apikey=${OMDB_API_KEY}`
+    );
+    const data = await res.json();
+    return data.Response === "True" ? data : null;
+  } catch (e) {
+    console.error("OMDB fetchMovieDetails error:", e);
     return null;
   }
+}
+
+// ——————————————————————————————
+//  TMDB (new helpers — requires you set VITE_TMDB_API_KEY in .env)
+// ——————————————————————————————
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+const TMDB_BASE = "https://api.themoviedb.org/3";
+
+// 1. Find the TMDB movie by its IMDb ID
+export async function findTMDBIdByImdb(imdbID) {
+  const res = await fetch(
+    `${TMDB_BASE}/find/${imdbID}?api_key=${TMDB_API_KEY}&external_source=imdb_id`
+  );
+  const data = await res.json();
+  // results.movie_results is an array; take the first match’s id
+  return data.movie_results?.[0]?.id || null;
+}
+
+// 2. Fetch videos (trailers etc.)
+export async function fetchTMDBVideos(tmdbId) {
+  if (!tmdbId) return [];
+  const res = await fetch(
+    `${TMDB_BASE}/movie/${tmdbId}/videos?api_key=${TMDB_API_KEY}`
+  );
+  const data = await res.json();
+  return data.results || [];
+}
+
+// 3. Fetch watch providers
+export async function fetchWatchProviders(tmdbId) {
+  if (!tmdbId) return {};
+  const res = await fetch(
+    `${TMDB_BASE}/movie/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`
+  );
+  const data = await res.json();
+  return data.results || {};
 }

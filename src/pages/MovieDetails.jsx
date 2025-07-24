@@ -1,54 +1,85 @@
+// src/pages/MovieDetails.jsx
+
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
-import { fetchMovieDetails } from "../services/api";
+import {
+  fetchMovieDetailsOMDB,
+  findTMDBIdByImdb,
+  fetchTMDBVideos,
+  fetchWatchProviders,
+} from "../services/api";
 import "./MovieDetails.css";
 
-function MovieDetails() {
-  const { id } = useParams();
+export default function MovieDetails() {
+  const { id: imdbID } = useParams();            // this is the imdbID from your route
   const navigate = useNavigate();
   const location = useLocation();
   const previousSearch = location.state?.searchQuery || "";
 
-  const [movie, setMovie] = useState(null);
-  // States for review functionality
+  const [movie, setMovie] = useState(null);       // OMDB details
+  const [trailerKey, setTrailerKey] = useState("");   // YouTube key
+  const [providers, setProviders] = useState([]);     // array of { provider_name, logo_path, type, link }
+
+  // Review state
   const [userRating, setUserRating] = useState("");
   const [userReview, setUserReview] = useState("");
   const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
-    async function loadMovieDetails() {
-      try {
-        const data = await fetchMovieDetails(id);
-        setMovie(data);
-      } catch (error) {
-        console.error("Error loading movie details:", error);
-        navigate("/", { replace: true });
+    async function loadAll() {
+      // 1️⃣ Fetch OMDB details
+      const omdb = await fetchMovieDetailsOMDB(imdbID);
+      if (!omdb) return navigate("/", { replace: true });
+      setMovie(omdb);
+
+      // 2️⃣ Find the TMDB ID via the IMDb ID
+      const tmdbId = await findTMDBIdByImdb(imdbID);
+      if (!tmdbId) return;
+
+      // 3️⃣ In parallel: fetch videos + providers
+      const [videos, allProviders] = await Promise.all([
+        fetchTMDBVideos(tmdbId),
+        fetchWatchProviders(tmdbId),
+      ]);
+
+      // pick the first YouTube trailer
+      const yt = videos.find((v) => v.site === "YouTube" && v.type === "Trailer");
+      if (yt) setTrailerKey(yt.key);
+
+      // pick providers for your region (e.g. NG) and flatten
+      const region = import.meta.env.VITE_DEFAULT_REGION || "US";
+      const regionInfo = allProviders[region] || {};
+      const items = [];
+      for (let type of ["flatrate", "rent", "buy"]) {
+        (regionInfo[type] || []).forEach((p) =>
+          items.push({ ...p, type, link: regionInfo.link })
+        );
       }
+      setProviders(items);
     }
-    loadMovieDetails();
-  }, [id, navigate]);
+
+    loadAll();
+  }, [imdbID, navigate]);
 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
-    // Create a review object; in production, to send to backend
     const newReview = {
       rating: userRating,
       text: userReview,
       date: new Date().toLocaleString(),
     };
-    // To prepend the new review to the list
-    setReviews([newReview, ...reviews]);
-    // Clear form fields
+    setReviews([newReview, ...reviews]);  // prepend properly
     setUserRating("");
     setUserReview("");
   };
 
-  if (!movie) return <div className="movie-loading">Loading movie details...</div>;
+  if (!movie) {
+    return <div className="movie-loading">Loading movie details…</div>;
+  }
 
   return (
     <div className="movie-container">
-      {/* Navbar */}
-      <div className="navbar">
+      <nav className="navbar">
         <h1>Movie App</h1>
         <div className="nav-links">
           <button
@@ -63,34 +94,66 @@ function MovieDetails() {
             Home
           </Link>
         </div>
-      </div>
+      </nav>
 
-      {/* Movie Details Section */}
-      <div className="movie-details">
+      <section className="movie-details">
         <h1 className="movie-title">{movie.Title}</h1>
         <div className="movie-info">
-          <img
-            src={movie.Poster}
-            alt={movie.Title}
-            className="movie-poster"
-          />
+          <img src={movie.Poster} alt={movie.Title} className="movie-poster" />
           <div className="movie-text">
-            <p>
-              <span>Year:</span> {movie.Year}
-            </p>
-            <p>
-              <span>Genre:</span> {movie.Genre}
-            </p>
-            <p>
-              <span>Director:</span> {movie.Director}
-            </p>
-            <p>
-              <span>Plot:</span> {movie.Plot}
-            </p>
+            <p><strong>Year:</strong> {movie.Year}</p>
+            <p><strong>Genre:</strong> {movie.Genre}</p>
+            <p><strong>Director:</strong> {movie.Director}</p>
+            <p><strong>Plot:</strong> {movie.Plot}</p>
           </div>
         </div>
 
-        {/* Rating & Review Section */}
+        {/* ▶️  Embed Trailer if available */}
+        {trailerKey && (
+          <div className="trailer-container">
+            <iframe
+              title="Trailer"
+              src={`https://www.youtube.com/embed/${trailerKey}`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="trailer-iframe"
+            />
+          </div>
+        )}
+
+        {/* 🍿  Where to Watch */}
+        {providers.length > 0 && (
+          <div className="watch-providers">
+            <h2>Where to Watch</h2>
+            <div className="providers-grid">
+              {providers.map((p) => (
+                <a
+                  key={p.provider_id + p.type}
+                  href={p.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="provider-card"
+                >
+                  <img
+                    src={`https://image.tmdb.org/t/p/w92${p.logo_path}`}
+                    alt={p.provider_name}
+                    className="provider-logo"
+                  />
+                  <span className="provider-name">{p.provider_name}</span>
+                  <span className="provider-type">
+                    {p.type === "flatrate"
+                      ? "Stream"
+                      : p.type === "rent"
+                      ? "Rent"
+                      : "Buy"}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ⭐ Rate & Review */}
         <div className="rating-review">
           <h2>Rate and Review</h2>
           <form onSubmit={handleReviewSubmit}>
@@ -103,11 +166,11 @@ function MovieDetails() {
                 required
               >
                 <option value="">Select rating</option>
-                <option value="1">1 Star</option>
-                <option value="2">2 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="5">5 Stars</option>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <option key={n} value={n}>
+                    {n} Star{n > 1 ? "s" : ""}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="review-item">
@@ -117,36 +180,33 @@ function MovieDetails() {
                 value={userReview}
                 onChange={(e) => setUserReview(e.target.value)}
                 rows="4"
-                placeholder="Write your review here..."
+                placeholder="Write your review here."
                 required
-              ></textarea>
+              />
             </div>
             <button type="submit" className="submit-button">
               Submit Review
             </button>
           </form>
 
-          {/* Display Reviews if any exist */}
           {reviews.length > 0 && (
             <div className="reviews-list">
-              <h3>User Reviews:</h3>
-              {reviews.map((review, index) => (
-                <div key={index} className="review">
+              <h3>User Reviews</h3>
+              {reviews.map((r, i) => (
+                <div key={i} className="review">
                   <div className="review-header">
                     <span className="review-rating">
-                      Rating: {review.rating} Star{review.rating !== "1" ? "s" : ""}
+                      {r.rating} Star{r.rating > 1 ? "s" : ""}
                     </span>
-                    <span className="review-date">{review.date}</span>
+                    <span className="review-date">{r.date}</span>
                   </div>
-                  <p className="review-text">{review.text}</p>
+                  <p className="review-text">{r.text}</p>
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }
-
-export default MovieDetails;
