@@ -8,17 +8,19 @@ import {
   fetchTMDBVideos,
   fetchWatchProviders,
 } from "../services/api";
+import { useFavorites } from "../hooks/useFavorites";
 import "./MovieDetails.css";
 
 export default function MovieDetails() {
-  const { id: imdbID } = useParams();            // this is the imdbID from your route
+  const { id: imdbID } = useParams();            // IMDb ID from route
   const navigate = useNavigate();
   const location = useLocation();
   const previousSearch = location.state?.searchQuery || "";
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
 
   const [movie, setMovie] = useState(null);       // OMDB details
   const [trailerKey, setTrailerKey] = useState("");   // YouTube key
-  const [providers, setProviders] = useState([]);     // array of { provider_name, logo_path, type, link }
+  const [providers, setProviders] = useState([]);     // array of watch providers
 
   // Review state
   const [userRating, setUserRating] = useState("");
@@ -46,7 +48,7 @@ export default function MovieDetails() {
       const yt = videos.find((v) => v.site === "YouTube" && v.type === "Trailer");
       if (yt) setTrailerKey(yt.key);
 
-      // pick providers for your region (e.g. NG) and flatten
+      // pick providers for region and flatten
       const region = import.meta.env.VITE_DEFAULT_REGION || "US";
       const regionInfo = allProviders[region] || {};
       const items = [];
@@ -57,7 +59,6 @@ export default function MovieDetails() {
       }
       setProviders(items);
     }
-
     loadAll();
   }, [imdbID, navigate]);
 
@@ -76,6 +77,10 @@ export default function MovieDetails() {
   if (!movie) {
     return <div className="movie-loading">Loading movie details…</div>;
   }
+
+  // Favorite state for this movie
+  const fav = isFavorite(movie.imdbID);
+  const toggleFav = () => fav ? removeFavorite(movie.imdbID) : addFavorite(movie.imdbID);
 
   return (
     <div className="movie-container">
@@ -97,7 +102,23 @@ export default function MovieDetails() {
       </nav>
 
       <section className="movie-details">
-        <h1 className="movie-title">{movie.Title}</h1>
+        {/* Title + Favorite Toggle */}
+        <div className="movie-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <h1 className="movie-title">{movie.Title}</h1>
+          <button
+            onClick={toggleFav}
+            aria-label={fav ? 'Remove from favorites' : 'Add to favorites'}
+            style={{
+              fontSize: '1.5rem',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {fav ? '❤️' : '🤍'}
+          </button>
+        </div>
+
         <div className="movie-info">
           <img src={movie.Poster} alt={movie.Title} className="movie-poster" />
           <div className="movie-text">
@@ -168,7 +189,7 @@ export default function MovieDetails() {
                 <option value="">Select rating</option>
                 {[1, 2, 3, 4, 5].map((n) => (
                   <option key={n} value={n}>
-                    {n} Star{n > 1 ? "s" : ""}
+                    {n} Star{n > 1 ? 's' : ''}
                   </option>
                 ))}
               </select>
@@ -196,7 +217,7 @@ export default function MovieDetails() {
                 <div key={i} className="review">
                   <div className="review-header">
                     <span className="review-rating">
-                      {r.rating} Star{r.rating > 1 ? "s" : ""}
+                      {r.rating} Star{r.rating > 1 ? 's' : ''}
                     </span>
                     <span className="review-date">{r.date}</span>
                   </div>

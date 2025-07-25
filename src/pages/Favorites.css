@@ -1,0 +1,27 @@
+/* src/pages/Favorites.css */
+
+.favorites-container {
+  max-width: 1200px;
+  margin: 5rem auto 2rem;       /* leave room for fixed navbar */
+  padding: var(--spacing);
+  background: var(--bg-app);     /* match app background */
+}
+
+.favorites-title {
+  color: var(--text-primary);
+  font-size: 2rem;
+  margin-bottom: var(--spacing);
+}
+
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing);
+}
+
+.favorites-empty {
+  text-align: center;
+  margin-top: var(--spacing);
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+}

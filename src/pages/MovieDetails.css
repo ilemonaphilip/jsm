@@ -269,3 +269,9 @@
     gap: 0.5rem;
   }
 }
+.movie-header button {
+  transition: transform 0.2s ease;
+}
+.movie-header button:hover {
+  transform: scale(1.2);
+}
