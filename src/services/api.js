@@ -85,3 +85,23 @@ export async function fetchSimilarMovies(tmdbId) {
   const data = await res.json();
   return data.results || [];
 }
+
+// 5. Fetch TMDB‐based recommendations
+export async function fetchTMDBRecommendations(tmdbId) {
+  if (!tmdbId) return [];
+  const res  = await fetch(
+    `${TMDB_BASE}/movie/${tmdbId}/recommendations?api_key=${TMDB_API_KEY}`
+  );
+  const data = await res.json();
+  return data.results || [];
+}
+
+// 6. Map a TMDB ID → its IMDb ID
+export async function fetchExternalImdbId(tmdbId) {
+  if (!tmdbId) return null;
+  const res  = await fetch(
+    `${TMDB_BASE}/movie/${tmdbId}/external_ids?api_key=${TMDB_API_KEY}`
+  );
+  const data = await res.json();
+  return data.imdb_id;  // e.g. "tt0111161"
+}

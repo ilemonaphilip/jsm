@@ -3,60 +3,60 @@ import { useFavorites } from "../hooks/useFavorites";
 import { useSearchHistory } from "../hooks/useSearchHistory";
 import {
   findTMDBIdByImdb,
-  fetchSimilarMovies,
+  fetchTMDBRecommendations,
+  fetchExternalImdbId,
   fetchMovies,
 } from "../services/api";
 import MovieCard from "./MovieCard";
-import "./Recommendations.css";     // ← Import our new CSS
+import "./Recommendations.css";
 
 export default function Recommendations() {
   const { favorites } = useFavorites();
-  const { history } = useSearchHistory();
-  const [byFav, setByFav] = useState([]);
+  const { history }   = useSearchHistory();
+  const [byFav, setByFav]     = useState([]);
   const [bySearch, setBySearch] = useState([]);
 
-  // Recommendations based on first favorite
+  // 🌟 TMDB‐trained recs
   useEffect(() => {
     async function loadFavRecs() {
-      if (favorites.length === 0) return;
+      if (!favorites.length) return;
       const tmdbId = await findTMDBIdByImdb(favorites[0]);
       if (!tmdbId) return;
-      const sims = await fetchSimilarMovies(tmdbId);
-      setByFav(sims.slice(0, 8));
+      const recs = await fetchTMDBRecommendations(tmdbId);
+      const enriched = await Promise.all(
+        recs.slice(0, 8).map(async (m) => ({
+          imdbID: await fetchExternalImdbId(m.id),
+          Title: m.title,
+          Poster: m.poster_path
+            ? `https://image.tmdb.org/t/p/w300${m.poster_path}`
+            : "",
+        }))
+      );
+      setByFav(enriched);
     }
     loadFavRecs();
   }, [favorites]);
 
-  // Recommendations based on most recent search
+  // 🔍 search‐based recs
   useEffect(() => {
     async function loadSearchRecs() {
-      if (history.length === 0) return;
+      if (!history.length) return;
       const recents = await fetchMovies(history[0]);
       setBySearch(recents.slice(0, 8));
     }
     loadSearchRecs();
   }, [history]);
 
-  // Hide entirely if nothing to show
-  if (byFav.length === 0 && bySearch.length === 0) return null;
+  if (!byFav.length && !bySearch.length) return null;
 
   return (
     <div className="recommendations">
       {byFav.length > 0 && (
         <div className="recommend-block">
-          <h2 className="recommend-title">What To Watch Next</h2>
+          <h2 className="recommend-title">Because you liked…</h2>
           <div className="recommend-grid">
             {byFav.map((m) => (
-              <MovieCard
-                key={m.id}
-                movie={{
-                  imdbID: m.imdb_id || m.id,
-                  Title: m.title,
-                  Poster: m.poster_path
-                    ? `https://image.tmdb.org/t/p/w300${m.poster_path}`
-                    : "",
-                }}
-              />
+              <MovieCard key={m.imdbID} movie={m} />
             ))}
           </div>
         </div>
